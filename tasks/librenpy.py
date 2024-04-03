@@ -6,7 +6,7 @@ from renpybuild.task import task
 def clean(c: Context):
     c.clean()
 
-
+# will fix these later
 @task(kind="host-python", pythons="2", always=True)
 def gen_static2(c: Context):
 
@@ -67,17 +67,7 @@ def build(c: Context):
     read_setup(c.renpy / "module")
     read_setup(c.root / "extensions")
 
-    if c.platform == "android":
-        read_setup(c.path("{{ pytmp }}/pyjnius"))
-
-    if c.platform == "ios" or c.platform == "mac":
-        read_setup(c.path("{{ install }}/pyobjus"))
-
-    if c.platform == "windows" or c.platform == "mac" or c.platform == "linux":
-        read_setup(c.renpy / "module", ".tfd")
-
-    if c.platform == "web" and c.python == "3":
-        read_setup(c.path("{{ install }}/emscripten_pyx"))
+    read_setup(c.renpy / "module", ".tfd")
 
     objects = [ ]
 

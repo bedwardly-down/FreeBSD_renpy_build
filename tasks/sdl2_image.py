@@ -20,9 +20,6 @@ def build(c: Context):
     c.var("version", version)
     c.chdir("SDL2_image-{{version}}")
 
-    if c.platform == "windows":
-        c.env("ac_cv_lib_jpeg_jpeg_CreateDecompress", "yes")
-
     c.run("""cp /usr/share/misc/config.sub config.sub""")
 
     # c.run("""./autogen.sh""")

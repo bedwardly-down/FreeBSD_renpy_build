@@ -32,7 +32,7 @@ class Context:
     has actions that can be run by tasks.
     """
 
-    # The platform. One of "linux", "windows", "mac", "android", "ios", or "web".
+    # The platform. One of "freebsd".
     platform : str
 
     # The architecture. Varies based on the platform.
@@ -107,11 +107,9 @@ class Context:
         self.var("root", root)
 
         # Paths relative to root.
-        self.var("runtime", self.root / "runtime")
         self.var("source", self.root / "source")
         self.var("tars", self.root / "tars")
         self.var("patches", self.root / "patches")
-        self.var("prebuilt", self.root / "prebuilt")
 
         # Paths to subprojects.
         self.pygame_sdl2 = self.root / "pygame_sdl2"
@@ -119,25 +117,6 @@ class Context:
 
         self.renpy = self.root / "renpy"
         self.var("renpy", self.renpy)
-
-        self.renpyweb = self.root / "renpyweb"
-        self.var("renpyweb", self.renpyweb)
-
-        self.var("rapt", "{{ renpy }}/rapt")
-        self.var("raptver", "{{ rapt }}" + self.python)
-
-        #
-        if "arm" in self.arch:
-            jni_arch = self.arch.replace("_", "-")
-        else:
-            jni_arch = self.arch
-
-        self.var("jni_arch", jni_arch)
-        self.var("jniLibs", "{{ raptver }}/prototype/renpyandroid/src/main/jniLibs/{{ jni_arch }}")
-
-        self.var("jni_unstripped", "{{ raptver }}/symbols/{{ jni_arch }}")
-
-        self.var("renios", "{{ renpy }}/renios" + self.python)
 
         # Python version specific storage.
         self.var("pytmp", self.tmp / ("py" + python))
@@ -160,22 +139,12 @@ class Context:
         host = self.tmp / "host"
         self.var("host", host)
 
-        if self.platform == "android":
-            cross = self.tmp / f"cross.{self.platform}"
-        else:
-            cross = self.tmp / f"cross.{self.platform}-{self.arch}"
-
-        # The path to the cross compiler.
-        self.var("cross", cross)
-
         per_python = False
 
         if kind == "host":
             self.dir_name = f"{self.name}.host"
         elif kind == "host-python":
             self.dir_name = f"{self.name}.py{self.python}"
-        elif kind == "cross":
-            self.dir_name = f"{self.name}.cross-{self.platform}-{self.arch}"
         elif kind == "platform":
             self.dir_name = f"{self.name}.{self.platform}"
         elif kind == "platform-python":
@@ -204,8 +173,6 @@ class Context:
 
         if kind == "host":
             install = host
-        elif kind == "cross":
-            install = cross
         else:
             install = self.tmp / f"install.{self.platform}-{self.arch}"
 
@@ -215,25 +182,14 @@ class Context:
         self.install = install
         self.var("install", install)
 
-        # The install for linux-x86_64, used to find file from any python isntall.
-        self.var("linuxinstall", self.tmp / "install.linux-x86_64")
-
         # The path to a version of Python comp
         self.var("hostpython", "{{ install }}/bin/hostpython{{ c.python }}")
 
-        # Final installation paths.
-        if self.platform == "web":
-            self.var("dist", self.install / "dist")
-        else:
-            self.var("dist", self.renpy)
+        self.var("dist", self.renpy)
 
         self.var("distlib", "{{dist}}/lib")
 
-        # renpy/lib/py3-linux-x86_64 and friends. ({{dist}}/lib/py-platform-arch)
-        if self.platform == "mac":
-            self.var("dlpa", "{{distlib}}/py{{ python }}-{{ platform }}-universal")
-        else:
-            self.var("dlpa", "{{distlib}}/py{{ python }}-{{ platform }}-{{ arch }}")
+        self.var("dlpa", "{{distlib}}/py{{ python }}-{{ platform }}-{{ arch }}")
 
         renpybuild.run.build_environment(self)
 

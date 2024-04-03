@@ -28,17 +28,11 @@ if [ -z "$RENPY_PLATFORM" ] ; then
     RENPY_PLATFORM="$(uname -s)-$(uname -m)"
 
     case "$RENPY_PLATFORM" in
-        Darwin-*|mac-*)
-            RENPY_PLATFORM="mac-universal"
-            ;;
         *-x86_64|amd64)
-            RENPY_PLATFORM="linux-x86_64"
+            RENPY_PLATFORM="freebsd-x86_64"
             ;;
-        *-i*86)
-            RENPY_PLATFORM="linux-i686"
-            ;;
-        Linux-*)
-            RENPY_PLATFORM="linux-$(uname -m)"
+        FreeBSD-*)
+            RENPY_PLATFORM="freebsd-$(uname -m)"
             ;;
         *)
             ;;
