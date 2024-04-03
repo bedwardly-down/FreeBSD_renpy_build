@@ -1,4 +1,4 @@
-*This only applies to any modifications made for this port to work on the BSD family of operating systems; all original Ren'py code is still owned by Ren'py under this license: https://www.renpy.org/doc/html/license.html
+*This only applies to any modifications made for this port to work on the BSD family of operating systems; all original Ren'py code is still owned by Ren'py under this license: https://www.renpy.org/doc/html/license.html*
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
