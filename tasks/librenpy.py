@@ -6,12 +6,12 @@ from renpybuild.task import task
 def clean(c: Context):
     c.clean()
 
-# will fix these later
+
 @task(kind="host-python", pythons="2", always=True)
 def gen_static2(c: Context):
 
     c.chdir("{{ renpy }}/module")
-    c.env("RENPY_DEPS_INSTALL", "/usr::/usr/lib/x86_64-linux-gnu/")
+    c.env("RENPY_DEPS_INSTALL", "/usr/local::{{ install }}/lib")
     c.env("RENPY_STATIC", "1")
     c.run("{{ hostpython }} setup.py generate")
 
@@ -20,16 +20,13 @@ def gen_static2(c: Context):
 def gen_static3(c: Context):
 
     c.chdir("{{ renpy }}/module")
-    c.env("RENPY_DEPS_INSTALL", "/usr::/usr/lib/x86_64-linux-gnu/")
+    c.env("RENPY_DEPS_INSTALL", "/usr/local::{{ install }}/lib")
     c.env("RENPY_STATIC", "1")
     c.run("{{ hostpython }} setup.py generate")
 
 
 @task(kind="python", platforms="all", always=True)
 def build(c: Context):
-
-    if c.platform == "web" and c.python == "2":
-        return
 
     c.env("CFLAGS", """{{ CFLAGS }} "-I{{ pygame_sdl2 }}" "-I{{ pygame_sdl2 }}/src" "-I{{ renpy }}/module" """)
 
@@ -66,8 +63,6 @@ def build(c: Context):
     read_setup(c.pygame_sdl2)
     read_setup(c.renpy / "module")
     read_setup(c.root / "extensions")
-
-    read_setup(c.renpy / "module", ".tfd")
 
     objects = [ ]
 

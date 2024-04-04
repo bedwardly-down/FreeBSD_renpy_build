@@ -17,8 +17,8 @@ def build(c: Context):
     c.var("version", version)
     c.chdir("openssl-{{version}}")
 
-    c.env("C_INCLUDE_PATH", "{{ host }}/include")
-    c.run("""./Configure cc no-shared no-asm no-engine threads -lpthread --prefix="{{ install }}" """)
+    c.env("CC", "ccache clang15")
+    c.run("""./Configure cc shared threads -lpthread --prefix="{{ host }}" """)
 
     c.run("""{{ make }}""")
     c.run("""{{ make_exec }} install_sw""")

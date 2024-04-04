@@ -20,16 +20,13 @@ def build(c: Context):
     c.var("version", version)
     c.chdir("SDL2_image-{{version}}")
 
-    c.run("""cp /usr/share/misc/config.sub config.sub""")
+    c.var("config_dir", "/usr/local/share/libtool/build-aux")
+    c.run("""cp {{ config_dir }}/config.sub config.sub""")
 
     # c.run("""./autogen.sh""")
     c.run("autoreconf -f")
 
     c.env("LIBAVIF_LIBS", "-lavif -laom -lyuv")
-
-    if c.platform == "web":
-        c.env("SDL_CFLAGS", "-sUSE_SDL=2")
-        c.env("SDL_LIBS", "-sUSE_SDL=2")
 
     c.run("""{{configure}} {{ cross_config }} --prefix="{{ install }}"
     --with-gnu-ld
@@ -61,4 +58,4 @@ def build(c: Context):
     libtool.write_text(text)
 
     c.run("""{{ make }}""")
-    c.run("""make install""")
+    c.run("""{{ make_exec }} install""")

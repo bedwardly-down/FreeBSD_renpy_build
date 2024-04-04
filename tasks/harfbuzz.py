@@ -23,7 +23,8 @@ def build(c: Context):
     c.var("version", version)
     c.chdir("harfbuzz-{{version}}")
 
-    c.run("""cp /usr/share/misc/config.sub .""")
+    c.var("config_dir", "/usr/local/share/libtool/build-aux")
+    c.run("""cp {{ config_dir }}/config.sub config.sub""")
 
     c.run("""{{configure}} {{ cross_config }}
           --disable-shared
@@ -42,5 +43,5 @@ def build(c: Context):
           --with-coretext=no
           """)
 
-    c.run("{{make}} V=1")
-    c.run("{{make}} install")
+    c.run("{{ make }} V=1")
+    c.run("{{ make_exec }} install")

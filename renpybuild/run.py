@@ -7,7 +7,37 @@ import sysconfig
 
 import jinja2
 
-def llvm(c, bin="", prefix="", suffix="-15", clang_args="", use_ld=True):
+# This caches the results of emsdk_environment.
+emsdk_cache : dict[str, str] = { }
+
+def emsdk_environment(c):
+    """
+    Loads the emsdk environment into `c`.
+    """
+
+    emsdk = c.path("{{ cross }}/emsdk")
+
+    if not emsdk.exists():
+        return
+
+    if not emsdk_cache:
+
+        env = dict(os.environ)
+        env["EMSDK_BASH"] = "1"
+        env["EMSDK_QUIET"] = "1"
+
+        bash = subprocess.check_output([ str(emsdk), "construct_env" ], env=env, text=True)
+
+        for l in bash.split("\n"):
+            m = re.match(r'export (\w+)=\"(.*?)\";?$', l)
+            if m:
+                emsdk_cache[m.group(1)] = m.group(2)
+
+    for k, v in emsdk_cache.items():
+        c.env(k, v)
+
+
+def llvm(c, bin="", prefix="", suffix="15", clang_args="", use_ld=True):
 
     if bin and not bin.endswith("/"):
         bin += "/"
@@ -21,7 +51,7 @@ def llvm(c, bin="", prefix="", suffix="-15", clang_args="", use_ld=True):
     if use_ld:
         clang_args = "-fuse-ld=lld -Wno-unused-command-line-argument " + clang_args
 
-    c.var("cxx_clang_args", "-stdlib=libc++")
+    c.var("cxx_clang_args", "")
 
     c.var("clang_args", clang_args)
 
@@ -29,7 +59,7 @@ def llvm(c, bin="", prefix="", suffix="-15", clang_args="", use_ld=True):
     c.env("CXX", "ccache {{llvm_bin}}{{llvm_prefix}}clang++{{llvm_suffix}} {{ clang_args }} -std=gnu++17 {{ cxx_clang_args }}")
     c.env("CPP", "ccache {{llvm_bin}}{{llvm_prefix}}clang{{llvm_suffix}} {{ clang_args }} -E")
 
-    # c.env("LD", "ccache " + ld)
+    c.env("LD", "ccache " + ld)
     c.env("AR", "ccache {{llvm_bin}}llvm-ar{{llvm_suffix}}")
     c.env("RANLIB", "ccache {{llvm_bin}}llvm-ranlib{{llvm_suffix}}")
     c.env("STRIP", "ccache {{llvm_bin}}llvm-strip{{llvm_suffix}}")
@@ -42,7 +72,6 @@ def build_environment(c):
     """
     Sets up the build environment inside the context.
     """
-
     cpuccount = os.cpu_count()
 
     if cpuccount is None:
@@ -51,7 +80,14 @@ def build_environment(c):
     if cpuccount > 12:
         cpuccount -= 4
 
-    c.var("make", "nice make -j " + str(cpuccount))
+    # FreeBSD primarily uses gmake for make actions; this is to fix that
+    # FreeBSD wasn't initialized in the context yet; workaround with sys module
+    if sys.platform.startswith('freebsd'):
+        c.var("make_exec", "gmake")
+    else:
+        c.var("make_exec", "make")
+    
+    c.var("make", "nice {{make_exec}} -j " + str(cpuccount))
     c.var("configure", "./configure")
     c.var("cmake", "cmake")
 
@@ -64,30 +100,29 @@ def build_environment(c):
 
     c.env("PATH", "{{ host }}/bin:{{ PATH }}")
 
-    if (c.platform == "freebsd") and (c.arch == "x86_64"):
-        c.var("host_platform", "x86_64-pc-freebsd")
-        c.var("architecture_name", "x86_64-freebsd")
+    # will update this once I have multi-release support added
+    c.var("host_platform", "x86_64-pc-freebsd14.0")
+    c.var("architecture_name", "x86_64-pc-freebsd14.0")
 
     c.var("sdl_host_platform", "{{ host_platform }}")
 
     c.var("ffi_host_platform", "{{ host_platform }}")
 
-    c.var("lipo", "llvm-lipo-15")
-
-
     if c.kind == "host" or c.kind == "host-python" or c.kind == "cross":
-
         llvm(c)
+
         c.env("LDFLAGS", "{{ LDFLAGS }} -L{{install}}/lib")
         c.env("PKG_CONFIG_PATH", "{{ install }}/lib/pkgconfig")
 
+        # c.var("cmake_system_name", "Linux")
+        # c.var("cmake_system_processor", "x86_64")
         c.var("cmake_args", "-DCMAKE_FIND_ROOT_PATH={{ install }}")
 
     elif (c.platform == "freebsd") and (c.arch == "x86_64"):
 
         llvm(c, clang_args="-target {{ host_platform }} --sysroot {{ sysroot }} -fPIC -pthread")
-        c.env("LDFLAGS", "{{ LDFLAGS }} -L{{install}}/lib64")
-        c.env("PKG_CONFIG_LIBDIR", "{{ sysroot }}/usr/lib/{{ architecture_name }}/pkgconfig:{{ sysroot }}/usr/local/lib/{{ architecture_name }}/pkgconfig")
+        c.env("LDFLAGS", "{{ LDFLAGS }} -L{{install}}/lib")
+        c.env("PKG_CONFIG_LIBDIR", "{{ install }}/lib/pkgconfig:{{ sysroot }}/usr/local/lib/{{ architecture_name }}/pkgconfig:{{ sysroot }}/usr/local/share/pkgconfig")
         # c.env("PKG_CONFIG_SYSROOT_DIR", "{{ sysroot }}")
 
         c.var("cmake_system_name", "FreeBSD")

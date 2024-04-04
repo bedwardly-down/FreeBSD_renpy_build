@@ -19,4 +19,9 @@ def build(c: Context):
 
     c.run("""{{configure}} {{ ffi_cross_config }} --disable-shared --enable-portable-binary --prefix="{{ install }}" """)
     c.run("""{{ make }}""")
-    c.run("""make install """)
+    c.run("""{{ make_exec }} install """)
+
+    # symlink ffi.h for Freebsd hostpythons to compile properly
+    c.run("ln -sf {{ install }}/include/ffi.h {{ host }}/include")
+    c.run("ln -sf {{ install }}/include/ffitarget.h {{ host }}/include")
+    c.run("ln -sf {{ install }}/lib/libffi.a {{ host }}/lib")

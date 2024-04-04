@@ -17,8 +17,9 @@ def build(c: Context):
     c.var("version", version)
     c.chdir("zlib-{{version}}")
     c.run("{{configure}} {{ configure_cross }} --static --prefix={{install}}")
-    c.run("{{ make }}")
-    c.run("make install")
+
+    c.run(""" {{ make }} """)
+    c.run("{{ make_exec }} install")
 
 
 @task(platforms="web", pythons="3")

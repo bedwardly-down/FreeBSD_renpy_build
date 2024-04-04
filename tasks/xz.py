@@ -23,4 +23,4 @@ def build(c: Context) :
     c.run("""touch src/common/common_w32res.rc""")
 
     c.run("""{{ make }}""")
-    c.run("""make install """)
+    c.run("""{{ make_exec }} install """)

@@ -5,8 +5,8 @@ from . import cython
 
 from . import env_sh
 
-from . import sysroot
 from . import toolchain
+from . import sysroot
 
 from . import nasm
 
@@ -15,6 +15,7 @@ from . import bzip2
 from . import xz
 from . import brotli
 
+from . import openssl_freebsd
 from . import openssl
 from . import libffi
 

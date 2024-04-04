@@ -24,9 +24,12 @@ def build(c: Context):
     {{ runtime }}/librenpython{{ c.python }}.c
     """)
 
-@task(kind="python", always=True, platforms="freebsd")
-def link(c: Context):
 
+@task(kind="python", always=True, platforms="freebsd")
+def link_freebsd(c: Context):
+
+    # set this for libGL support
+    c.env("LDFLAGS", "{{ LDFLAGS }} -L{{ sysroot }}/usr/local/lib")
     c.run("""
     {{ CXX }} {{ LDFLAGS }}
     -shared
@@ -97,3 +100,34 @@ def link(c: Context):
     c.run("""install python {{ dlpa }}/python""")
     c.run("""install python {{ dlpa }}/pythonw""")
     c.run("""install renpy {{ dlpa }}/renpy""")
+
+
+def fix_pe(c: Context, fn):
+    """
+    Sets the PE file characteristics to mark the relocations as stripped.
+    """
+
+    import sys
+    print(sys.executable, sys.path)
+
+    fn = str(c.path(fn))
+
+    with open(c.path("fix_pe.py"), "w") as f:
+
+        f.write("""\
+import sys
+print(sys.executable, sys.path)
+
+import pefile
+import sys
+
+fn = sys.argv[1]
+
+pe = pefile.PE(fn)
+pe.FILE_HEADER.Characteristics = pe.FILE_HEADER.Characteristics | pefile.IMAGE_CHARACTERISTICS["IMAGE_FILE_RELOCS_STRIPPED"]
+pe.OPTIONAL_HEADER.CheckSum = pe.generate_checksum()
+pe.write(fn)
+""")
+
+    c.run("""{{ hostpython }} fix_pe.py """ + fn)
+

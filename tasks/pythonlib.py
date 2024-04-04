@@ -187,18 +187,12 @@ reprlib/
 socketserver/
 winreg/
 
-android
-jnius/
-pyobjus/
-
 urllib3/
 idna/
 certifi/
 chardet/
 ecdsa/
 requests/
-
-iossupport.pyo
 
 six.pyo
 
@@ -237,9 +231,6 @@ def python2(c: Context):
     search = [
         c.path("{{ install }}/lib/{{ pythonver }}"),
         c.path("{{ install }}/lib/{{ pythonver }}/site-packages"),
-        c.path("{{ pytmp }}/pyjnius"),
-        c.path("{{ pytmp }}/pyobjus"),
-        c.path("{{ pytmp }}/steam"),
         ]
 
     dist = c.path("{{ distlib }}/{{ pythonver }}")
@@ -532,8 +523,9 @@ def python3(c: Context):
 
     # used_rules.add("steamapi")
 
+    # added freebsd due to steamapi not being available for that platform
     if rules - used_rules:
-        if c.platform != "web":
+        if c.platform != "web" and c.platform != "freebsd":
             raise Exception(f"Unused rules: {rules - used_rules}")
 
     c.copy("{{ runtime }}/site3.py", "{{ distlib }}/{{ pythonver }}/sitecustomize.py")

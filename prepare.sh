@@ -7,62 +7,52 @@ ROOT=$(cd $(dirname $0); pwd)
 REFS=$ROOT
 BASE="$ROOT"
 
-# Needed to build things.
-sudo apt-get install -y git build-essential ccache unzip autoconf autoconf-archive automake libtool-bin
-
+## Needed to build things.
+#sudo pkg install git ccache autoconf autoconf-archive automake cmake gmake libtool gcc13 bison flex gmake libxml2 llvm15
+#
 # Needed to build python things.
-sudo apt-get install -y python2-dev python3-dev python3-venv
+sudo pkg install -y python2 python3 python310 py39-virtualenv py310-setuptools py310-wheel
 
 # Needed to install python2 pip
-sudo apt-get install -y curl
+sudo pkg install -y curl
 
 # Needed by renpy-build itself.
-sudo apt-get install -y python3-jinja2
+sudo pkg install -y py39-jinja2
 
-# Needed by sysroot.
-sudo apt-get install -y debootstrap qemu-user-static
-
-# Needed by gcc.
-sudo apt-get install -y libgmp-dev libmpfr-dev libmpc-dev
-
-# Needed by llvm.
-sudo apt-get install -y software-properties-common
-
+## Needed by sysroot for Linux builds.
+#sudo pkg install -y debootstrap qemu-user-static
+#
+## Needed by gcc.
+#sudo pkg install -y gmp mpfr mpc iconv valgrind
+#
+## Needed by binutils for toolchain.
+#sudo pkg install -y texinfo
+#
 # Needed by hostpython.
-sudo apt-get install -y libssl-dev libbz2-dev liblzma-dev
+sudo pkg install -y openssl bzip2 lzma
 
-# Needed by brotli.
-sudo apt-get install -y bc
-
-# Needed for mac
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y cmake clang libxml2-dev llvm
-
-# Needed for web
-sudo apt-get install -y quilt
-
-# Install the standard set of packages needed to build Ren'Py.
-sudo apt-get install -y \
-    libavcodec-dev libavformat-dev \
-    libswresample-dev libswscale-dev libfreetype6-dev libfribidi-dev libsdl2-dev \
-    libsdl2-image-dev libsdl2-gfx-dev libsdl2-mixer-dev libsdl2-ttf-dev libjpeg-dev \
-    libharfbuzz-dev
+## Needed for web
+#sudo pkg install -y quilt
+#
+## Install the standard set of packages needed to build Ren'Py.
+#sudo pkg install -y \
+#    ffmpeg gstreamer1-libav gstreamer1-plugins \
+#    gstreamer1-plugins-good gstreamer1-plugins-bad \
+#    gstreamer1-plugins-ugly freetype2 fribidi sdl2 \
+#    sdl2_image sdl2_gfx sdl2_mixer sdl2_ttf jpeg-turbo \
+#    harfbuzz
 
 mkdir -p $ROOT/tmp
-
-# Clang is needed to compile for many platforms.
-wget -O tmp/llvm.sh https://apt.llvm.org/llvm.sh
-chmod +x tmp/llvm.sh
-sudo tmp/llvm.sh 15
-
-# Darwin clang_rt is needed to prevent undefined symbol: __isPlatformVersionAtLeast
-sudo tar xzf "$BASE/prebuilt/clang_rt.tar.gz" -C /usr/lib/clang/15/lib/
-
 
 # Install the programs and virtualenvs.
 
 VENV="$ROOT/tmp/virtualenv.py3"
+# required to get the proper virtualenvironment set correctly until FreeBSD moves fully to Py3.10
+python3 -m virtualenv -p "/usr/local/bin/python3.10" $VENV
 
-export RENPY_DEPS_INSTALL=/usr::/usr/lib/x86_64-linux-gnu/
+# none of these should be directly installed to /usr with how FreeBSD handles software
+export TOOLCHAIN=$ROOT/tmp/host/x86_64-pc-freebsd/
+export RENPY_DEPS_INSTALL=/usr/local::$TOOLCHAIN
 
 . $BASE/nightly/git.sh
 . $BASE/nightly/python.sh

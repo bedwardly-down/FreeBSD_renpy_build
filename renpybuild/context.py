@@ -107,6 +107,7 @@ class Context:
         self.var("root", root)
 
         # Paths relative to root.
+        self.var("runtime", self.root / "runtime")
         self.var("source", self.root / "source")
         self.var("tars", self.root / "tars")
         self.var("patches", self.root / "patches")

@@ -22,5 +22,5 @@ def build(c: Context):
           --prefix="{{ install }}"
           """)
 
-    c.run("{{make}}")
-    c.run("{{make}} install")
+    c.run("{{ make }}")
+    c.run("{{ make_exec }} install")

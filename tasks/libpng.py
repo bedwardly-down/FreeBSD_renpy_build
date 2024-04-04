@@ -21,4 +21,4 @@ def build(c: Context) :
 
     c.run("""{{configure}} {{ cross_config }} --disable-shared --prefix="{{ install }}" """)
     c.run("""{{ make }}""")
-    c.run("""make install """)
+    c.run("""{{ make_exec }} install """)

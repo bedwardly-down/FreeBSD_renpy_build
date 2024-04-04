@@ -21,6 +21,10 @@ def build(c: Context):
     {{configure}} {{ cross_config }}
     --disable-shared
     --prefix="{{ install }}"
+
+{% if (c.platform == "linux") and (c.arch == "armv7l") %}
+    --disable-neon
+{% endif %}
     """)
     c.run("""{{ make }}""")
-    c.run("""make install """)
+    c.run("""{{ make_exec }} install """)

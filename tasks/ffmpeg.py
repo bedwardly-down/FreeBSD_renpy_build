@@ -26,10 +26,10 @@ def build(c: Context):
     else:
         raise Exception(f"Unknown arch: {c.arch}")
 
-    if c.platform == "freesbd":
-        c.var("os", "freesbd")
-    else:
-        raise Exception(f"Unknown os: {c.platform}")
+    c.var("os", "freebsd")
+    # /tmp folder has different permissions than on Linux, so just fix this by moving the tmp directory to a local tmp folder
+    c.env("TMPDIR", str(c.path("{{ tmp }}/ffmpeg")))
+    c.run("mkdir -p {{ TMPDIR }}")
 
     c.var("version", version)
     c.chdir("ffmpeg-{{version}}")
@@ -132,6 +132,7 @@ def build(c: Context):
         --disable-sndio
         --disable-xlib
 
+
         --disable-amf
         --disable-audiotoolbox
         --disable-cuda-llvm
@@ -147,4 +148,5 @@ def build(c: Context):
     """)
 
     c.run("""{{ make }} V=1""")
-    c.run("""make install""")
+    c.run("""{{ make_exec }} install""")
+
