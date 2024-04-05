@@ -13,11 +13,7 @@
 
 void init_librenpy(void);
 
-#ifdef MS_WINDOWS
-#define EXPORT __declspec(dllexport)
-#else
 #define EXPORT
-#endif
 
 #undef DEBUG_EXISTS
 
@@ -81,24 +77,6 @@ static void take_argv0(char *argv0) {
     pyname = (char *) malloc(pyname_size);
     strncpy(pyname, exename, pyname_size);
 
-#ifdef MS_WINDOWS
-
-    // This removes the .exe suffix.
-    if (strlen(pyname) > 4) {
-        if (compare(&pyname[strlen(pyname) - 4], ".exe", ".EXE")) {
-            pyname[strlen(pyname) - 4] = 0;
-        }
-    }
-
-    // This removes the -32 suffix, if it exists.
-    if (strlen(pyname) > 3) {
-        if (compare(&pyname[strlen(pyname) - 3], "-32", "-32")) {
-            pyname[strlen(pyname) - 3] = 0;
-        }
-    }
-
-#endif
-
     strncat(pyname, ".py", pyname_size);
 
     exedir = strdup(argv0);
@@ -148,16 +126,7 @@ static char *join(const char *p1, const char *p2) {
 static int exists(const char *p1, const char *p2) {
     char *path = join(p1, p2);
 
-#ifdef MS_WINDOWS
-    wchar_t *wpath = Py_DecodeLocale(path, NULL);
-    if (wpath == NULL) {
-        return 0;
-    }
-    FILE *f = _wfopen(wpath, L"rb");
-    PyMem_Free(wpath);
-#else
     FILE *f = fopen(path, "rb");
-#endif
 
 #ifdef DEBUG_EXISTS
     printf("%s", path);
@@ -193,19 +162,6 @@ static void find_python_home(const char *p) {
         return;
     }
 
-#ifdef WINDOWS
-    if (exists(p, "\\lib\\" PYTHONVER "\\site.pyc") ||
-        exists(p, "\\lib\\python" PYCVER ".zip")) {
-
-        found = 1;
-        config.home = Py_DecodeLocale(join(p, NULL), NULL);
-        config.prefix = config.home;
-        config.exec_prefix = config.home;
-        PyWideStringList_Append(&config.module_search_paths, Py_DecodeLocale(join(p, "\\lib\\" PYTHONVER), NULL));
-        PyWideStringList_Append(&config.module_search_paths, Py_DecodeLocale(join(p, "\\lib\\python" PYCVER ".zip"), NULL));
-        config.module_search_paths_set = 1;
-    }
-#else
     if (exists(p, "/lib/" PYTHONVER "/site.pyc") ||
         exists(p, "/lib/python" PYCVER ".zip")) {
 
@@ -217,7 +173,6 @@ static void find_python_home(const char *p) {
         PyWideStringList_Append(&config.module_search_paths, Py_DecodeLocale(join(p, "/lib/python" PYCVER ".zip"), NULL));
         config.module_search_paths_set = 1;
     }
-#endif
 }
 
 /**
@@ -225,41 +180,11 @@ static void find_python_home(const char *p) {
  */
 static void search_python_home(void) {
 
-#ifdef LINUX
     // Relative to the base directory.
     find_python_home("");
 
-    // Relative to lib/linux-x86_64.
+    // Relative to lib/freebsd-x86_64.
     find_python_home("/../..");
-#endif
-
-#ifdef MAC
-    // Relative to the Resources directory.
-    find_python_home("/../Resources");
-
-    // Relative to the base directory.
-    find_python_home("");
-
-    // Relative to lib/mac-x86_64.
-    find_python_home("/../..");
-
-    // Relative to game.app/Contents/MacOS.
-    find_python_home("/../../..");
-#endif
-
-#ifdef WINDOWS
-    // Relative to the base directory.
-    find_python_home("");
-
-    // Relative to lib/windows-i686.
-    find_python_home("\\..\\..");
-
-#endif
-
-#ifdef IOS
-    // Relative to the base directory.
-    find_python_home("/base");
-#endif
 
 }
 
@@ -291,40 +216,12 @@ static void find_pyname(const char *p) {
 
 static void search_pyname() {
 
-#ifdef LINUX
     // Relative to the base directory.
     find_pyname("/");
 
-    // Relative to lib/windows-i686
-    find_pyname("/../../");
-#endif
-
-#ifdef MAC
-    // Relative to the base directory.
-    find_pyname("/");
-
-    // Relative to lib/windows-i686
+    // Relative to lib/freebsd-x86_64
     find_pyname("/../../");
 
-    // In the mac app - exe is in game.app/Contents/MacOS,
-    // main.py is in game.app/Contents/MacOS/Resources/autorun.
-    find_pyname("/../Resources/autorun/");
-
-    // Relative to renpy.app/Contents/MacOS.
-    find_pyname("/../../../");
-#endif
-
-#ifdef WINDOWS
-    // Relative to the base directory.
-    find_pyname("\\");
-
-    // Relative to lib/windows-i686.
-    find_pyname("\\..\\..\\");
-#endif
-
-#ifdef IOS
-    find_pyname("/base/");
-#endif
 }
 
 /**
@@ -434,10 +331,6 @@ int EXPORT renpython_main_wide(int argc, wchar_t **argv) {
  * This is called from the launcher executable, to start Ren'Py running.
  */
 int EXPORT launcher_main(int argc, char **argv) {
-
-#ifdef WEB
-    argv[0] = "./main";
-#endif
 
     preinitialize(1, argc, argv);
 

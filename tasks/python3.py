@@ -13,7 +13,7 @@ def annotate(c: Context):
         c.include("{{ install }}/include/{{ pythonver }}")
 
 
-@task(kind="python", pythons="3", platforms="linux,mac,android,ios")
+@task(kind="python", pythons="3", platforms="freebsd")
 def unpack(c: Context):
     c.clean()
 
@@ -21,14 +21,7 @@ def unpack(c: Context):
     c.run("tar xzf {{source}}/Python-{{version}}.tgz")
 
 @task(kind="python", pythons="3", platforms="freebsd")
-def unpack_freebsd(c: Context):
-    c.clean()
-
-    c.var("version", version)
-    c.run("tar xzf {{source}}/Python-{{version}}.tgz")
-
-@task(kind="python", pythons="3", platforms="freebsd")
-def patch_posix_freebsd(c: Context):
+def patch_posix(c: Context):
     c.var("version", version)
 
     c.chdir("Python-{{ version }}")
@@ -48,7 +41,7 @@ def common(c: Context):
         f.write("ac_cv_file__dev_ptc=no\n")
 
 
-@task(kind="python", pythons="3", platforms="linux,mac,freebsd")
+@task(kind="python", pythons="3", platforms="freebsd")
 def build_posix(c: Context):
 
     common(c)

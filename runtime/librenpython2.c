@@ -6,11 +6,7 @@
 
 void init_librenpy(void);
 
-#ifdef MS_WINDOWS
-#define EXPORT __declspec(dllexport)
-#else
 #define EXPORT
-#endif
 
 #undef DEBUG_EXISTS
 
@@ -69,24 +65,6 @@ static void take_argv0(char *argv0) {
 
     pyname = (char *) malloc(pyname_size);
     strncpy(pyname, exename, pyname_size);
-
-#ifdef MS_WINDOWS
-
-    // This removes the .exe suffix.
-    if (strlen(pyname) > 4) {
-        if (compare(&pyname[strlen(pyname) - 4], ".exe", ".EXE")) {
-            pyname[strlen(pyname) - 4] = 0;
-        }
-    }
-
-    // This removes the -32 suffix, if it exists.
-    if (strlen(pyname) > 3) {
-        if (compare(&pyname[strlen(pyname) - 3], "-32", "-32")) {
-            pyname[strlen(pyname) - 3] = 0;
-        }
-    }
-
-#endif
 
     strncat(pyname, ".py", pyname_size);
 
@@ -173,61 +151,21 @@ static void find_python_home(const char *p) {
         return;
     }
 
-
-#ifdef WINDOWS
-    if (exists(p, "\\lib\\python2.7\\site.pyo") || exists(p, "\\lib\\python27.zip")) {
-        found = 1;
-        Py_SetPythonHome(join(p, NULL));
-    }
-#else
     if (exists(p, "/lib/python2.7/site.pyo") || exists(p, "/lib/python27.zip")) {
         found = 1;
         Py_SetPythonHome(join(p, NULL));
     }
-#endif
 }
 
 /**
  * Searches for the python home directory in the platform-specific location.
  */
 static void search_python_home(void) {
-
-#ifdef LINUX
     // Relative to the base directory.
     find_python_home("");
 
-    // Relative to lib/linux-x86_64.
+    // Relative to lib/freebsd-x86_64.
     find_python_home("/../..");
-#endif
-
-#ifdef MAC
-    // Relative to the Resources directory.
-    find_python_home("/../Resources");
-
-    // Relative to the base directory.
-    find_python_home("");
-
-    // Relative to lib/mac-x86_64.
-    find_python_home("/../..");
-
-    // Relative to game.app/Contents/MacOS.
-    find_python_home("/../../..");
-#endif
-
-#ifdef WINDOWS
-    // Relative to the base directory.
-    find_python_home("");
-
-    // Relative to lib/windows-i686.
-    find_python_home("\\..\\..");
-
-#endif
-
-#ifdef IOS
-    // Relative to the base directory.
-    find_python_home("/base");
-#endif
-
 }
 
 
@@ -253,10 +191,7 @@ static void find_pyname(const char *p) {
         pyname = join(p, "main.py");
         return;
     }
-
-
 }
-
 
 /**
  * This sets the RENPY_PLATFORM environment variable, if it hasn't been set
@@ -304,43 +239,11 @@ int EXPORT launcher_main(int argc, char **argv) {
     take_argv0(argv[0]);
     search_python_home();
 
-#ifdef LINUX
     // Relative to the base directory.
     find_pyname("/");
 
-    // Relative to lib/windows-i686
+    // Relative to lib/freebsd-x86_64
     find_pyname("/../../");
-#endif
-
-#ifdef MAC
-    // Relative to the base directory.
-    find_pyname("/");
-
-    // Relative to lib/windows-i686
-    find_pyname("/../../");
-
-    // In the mac app - exe is in game.app/Contents/MacOS,
-    // main.py is in game.app/Contents/MacOS/Resources/autorun.
-    find_pyname("/../Resources/autorun/");
-
-    // Relative to renpy.app/Contents/MacOS.
-    find_pyname("/../../../");
-#endif
-
-#ifdef WINDOWS
-    // Relative to the base directory.
-    find_pyname("\\");
-
-    // Relative to lib/windows-i686.
-    find_pyname("\\..\\..\\");
-#endif
-
-#ifdef IOS
-
-    find_pyname("/base/");
-
-#endif
-
     // Figure out argv.
     char **new_argv = (char **) alloca((argc + 1) * sizeof(char *));
 
