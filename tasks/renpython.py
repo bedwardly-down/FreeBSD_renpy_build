@@ -50,6 +50,8 @@ def link_freebsd(c: Context):
 
     -lSDL2_image
     -lSDL2
+    -lX11
+    -lwayland-client
     -lGL
     -lavif
     -laom
