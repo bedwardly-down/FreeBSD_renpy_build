@@ -34,6 +34,8 @@ from . import python3
 
 from . import live2d
 
+#from . import libusb
+#from . import hidapi
 from . import sdl2
 from . import sdl2_image
 

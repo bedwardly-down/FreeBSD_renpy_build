@@ -10,6 +10,8 @@ def clean(c: Context):
 
 @task(kind="python", always=True)
 def build(c: Context):
+    c.env("LDFLAGS", "-L{{ install }}/lib -L/usr/local/lib")
+    c.env("CFLAGS", "{{ CFLAGS }} -I/usr/local/include")
 
     c.run("""
     {{ CC }} {{ CFLAGS }}
@@ -28,7 +30,7 @@ def build(c: Context):
 @task(kind="python", always=True, platforms="freebsd")
 def link_freebsd(c: Context):
 
-    c.env("LDFLAGS", "{{ LDFLAGS }} -L/usr/local/lib")
+    c.env("LDFLAGS", "-L{{ install }}/lib -L/usr/local/lib")
     c.run("""
     {{ CXX }} {{ LDFLAGS }}
     -shared
@@ -47,9 +49,15 @@ def link_freebsd(c: Context):
     -lswresample
     -lavutil
 
-    -lSDL2_image
+    -lusb
+    -lusbhid 
     -lSDL2
+    -lSDL2_image
+    -lX11
+    -lwayland-client
     -lGL
+    -lGLU
+    -lGLX
     -lavif
     -laom
     -lyuv
@@ -101,32 +109,32 @@ def link_freebsd(c: Context):
     c.run("""install renpy {{ dlpa }}/renpy""")
 
 
-def fix_pe(c: Context, fn):
-    """
-    Sets the PE file characteristics to mark the relocations as stripped.
-    """
-
-    import sys
-    print(sys.executable, sys.path)
-
-    fn = str(c.path(fn))
-
-    with open(c.path("fix_pe.py"), "w") as f:
-
-        f.write("""\
-import sys
-print(sys.executable, sys.path)
-
-import pefile
-import sys
-
-fn = sys.argv[1]
-
-pe = pefile.PE(fn)
-pe.FILE_HEADER.Characteristics = pe.FILE_HEADER.Characteristics | pefile.IMAGE_CHARACTERISTICS["IMAGE_FILE_RELOCS_STRIPPED"]
-pe.OPTIONAL_HEADER.CheckSum = pe.generate_checksum()
-pe.write(fn)
-""")
-
-    c.run("""{{ hostpython }} fix_pe.py """ + fn)
-
+#def fix_pe(c: Context, fn):
+#    """
+#    Sets the PE file characteristics to mark the relocations as stripped.
+#    """
+#
+#    import sys
+#    print(sys.executable, sys.path)
+#
+#    fn = str(c.path(fn))
+#
+#    with open(c.path("fix_pe.py"), "w") as f:
+#
+#        f.write("""\
+#import sys
+#print(sys.executable, sys.path)
+#
+#import pefile
+#import sys
+#
+#fn = sys.argv[1]
+#
+#pe = pefile.PE(fn)
+#pe.FILE_HEADER.Characteristics = pe.FILE_HEADER.Characteristics | pefile.IMAGE_CHARACTERISTICS["IMAGE_FILE_RELOCS_STRIPPED"]
+#pe.OPTIONAL_HEADER.CheckSum = pe.generate_checksum()
+#pe.write(fn)
+#""")
+#
+#    c.run("""{{ hostpython }} fix_pe.py """ + fn)
+#

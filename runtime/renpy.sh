@@ -28,11 +28,8 @@ if [ -z "$RENPY_PLATFORM" ] ; then
     RENPY_PLATFORM="$(uname -s)-$(uname -m)"
 
     case "$RENPY_PLATFORM" in
-        *-x86_64|amd64)
+        FreeBSD-amd64)
             RENPY_PLATFORM="freebsd-x86_64"
-            ;;
-        FreeBSD-*)
-            RENPY_PLATFORM="freebsd-$(uname -m)"
             ;;
         *)
             ;;

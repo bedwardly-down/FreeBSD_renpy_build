@@ -1,7 +1,7 @@
 from renpybuild.context import Context
 from renpybuild.task import task
 
-version = "2.6.2"
+version = "2.8.2"
 
 
 @task(platforms="all")
@@ -12,7 +12,7 @@ def unpack(c: Context):
     c.run("tar xzf {{source}}/SDL2_image-{{version}}.tar.gz")
     c.chdir("SDL2_image-{{version}}")
 
-    c.patch("sdl2_image-avif-error.diff")
+    #c.patch("sdl2_image-avif-error.diff")
 
 
 @task(platforms="all")
