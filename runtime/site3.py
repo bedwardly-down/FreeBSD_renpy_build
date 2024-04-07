@@ -235,4 +235,8 @@ sys.path.append(pythonlib + "/../" + PY_RENPY_PLATFORM)
 if RENPY_PLATFORM.startswith("mac-"):
     sys.path.append(os.path.dirname(sys.executable))
 
+# Adjust FreeBSD RENPY_PLATFORM variable
+if RENPY_PLATFORM("freebsd-amd64"):
+    os.putenv("RENPY_PLATFORM", "freebsd-x86_64")
+
 sys.path = [ os.path.abspath(i) for i in sys.path ]

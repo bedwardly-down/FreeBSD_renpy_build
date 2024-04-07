@@ -55,11 +55,8 @@ def install_sysroot_tools(c: Context):
 
     c.run("""
         sudo chroot {{ sysroot }} /bin/sh -c '
-            pkg install -y autoconf autoconf-archive automake \
-                cmake gmake libtool gcc13 bison \
-                flex libxml2 llvm15 gmp mpfr mpc \
-                iconv valgrind texinfo pkgconf \
-                mesa-libs libX11 wayland
+            pkg install -y gcc13 bison \
+                flex libxml2 llvm15 gmp mpfr mpc iconv
         '
     """)
 

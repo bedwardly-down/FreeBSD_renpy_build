@@ -28,8 +28,7 @@ def build(c: Context):
 @task(kind="python", always=True, platforms="freebsd")
 def link_freebsd(c: Context):
 
-    # set this for libGL support
-    c.env("LDFLAGS", "{{ LDFLAGS }} -L{{ sysroot }}/usr/local/lib")
+    c.env("LDFLAGS", "{{ LDFLAGS }} -L/usr/local/lib")
     c.run("""
     {{ CXX }} {{ LDFLAGS }}
     -shared
@@ -50,8 +49,6 @@ def link_freebsd(c: Context):
 
     -lSDL2_image
     -lSDL2
-    -lX11
-    -lwayland-client
     -lGL
     -lavif
     -laom

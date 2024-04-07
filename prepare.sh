@@ -19,28 +19,25 @@ sudo pkg install -y curl
 # Needed by renpy-build itself.
 sudo pkg install -y py39-jinja2
 
-## Needed by sysroot for Linux builds.
+# Needed by sysroot for Linux builds.
 #sudo pkg install -y debootstrap qemu-user-static
-#
-## Needed by gcc.
-#sudo pkg install -y gmp mpfr mpc iconv valgrind
-#
-## Needed by binutils for toolchain.
-#sudo pkg install -y texinfo
-#
+
+# Needed by gcc.
+sudo pkg install -y gmp mpfr mpc iconv valgrind
+
 # Needed by hostpython.
 sudo pkg install -y openssl bzip2 lzma
 
-## Needed for web
-#sudo pkg install -y quilt
-#
-## Install the standard set of packages needed to build Ren'Py.
-#sudo pkg install -y \
-#    ffmpeg gstreamer1-libav gstreamer1-plugins \
-#    gstreamer1-plugins-good gstreamer1-plugins-bad \
-#    gstreamer1-plugins-ugly freetype2 fribidi sdl2 \
-#    sdl2_image sdl2_gfx sdl2_mixer sdl2_ttf jpeg-turbo \
-#    harfbuzz
+# Needed for web
+sudo pkg install -y quilt
+
+# Install the standard set of packages needed to build Ren'Py.
+sudo pkg install -y \
+    ffmpeg gstreamer1-libav gstreamer1-plugins \
+    gstreamer1-plugins-good gstreamer1-plugins-bad \
+    gstreamer1-plugins-ugly freetype2 fribidi sdl2 \
+    sdl2_image sdl2_gfx sdl2_mixer sdl2_ttf jpeg-turbo \
+    harfbuzz
 
 mkdir -p $ROOT/tmp
 
@@ -54,5 +51,5 @@ python3 -m virtualenv -p "/usr/local/bin/python3.10" $VENV
 export TOOLCHAIN=$ROOT/tmp/host/x86_64-pc-freebsd/
 export RENPY_DEPS_INSTALL=/usr/local::$TOOLCHAIN
 
-. $BASE/nightly/git.sh
-. $BASE/nightly/python.sh
+#. $BASE/nightly/git.sh
+#. $BASE/nightly/python.sh
