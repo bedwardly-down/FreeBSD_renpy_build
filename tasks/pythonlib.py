@@ -49,7 +49,6 @@ cookielib.pyo
 Cookie.pyo
 copy.pyo
 cProfile.pyo
-
 ctypes/_endian.pyo
 ctypes/__init__.pyo
 ctypes/macholib/dyld.pyo
@@ -106,7 +105,6 @@ json/encoder.pyo
 json/__init__.pyo
 json/scanner.pyo
 keyword.pyo
-list2cmdline.pyo
 locale.pyo
 logging/__init__.pyo
 _LWPCookieJar.pyo
@@ -198,8 +196,6 @@ six.pyo
 
 pefile.pyo
 ordlookup/
-
-steamapi.pyo
 """
 
 

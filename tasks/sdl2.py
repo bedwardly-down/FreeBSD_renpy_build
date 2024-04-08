@@ -2,7 +2,7 @@ from renpybuild.context import Context
 from renpybuild.task import task, annotator
 import shutil
 
-version = "2.30.2"
+version = "2.0.20"
 
 
 @annotator
@@ -51,9 +51,6 @@ def build(c: Context):
             --enable-wayland-shared
             --disable-libdecor
             --enable-video-x11
-
-            --disable-libusb
-            --disable-hidapi
         """)
 
     c.run("""{{ make }}""")

@@ -13,14 +13,13 @@ from . import nasm
 from . import zlib
 from . import bzip2
 from . import xz
-from . import brotli
+from . import brotli # keep this Ren'Py upstream version until this gets fully resolved altogether: https://github.com/urllib3/urllib3/pull/3136 (not an issue but URLLIB is a dependency and Brotli 1.1.0 will break Python 2.7 support
 
-from . import openssl_freebsd
-from . import openssl
+from . import openssl # keep an eye on this; upgraded from 1.1.1s to 3.2.0 without too many issues
 from . import libffi
 
 from . import libpng
-from . import libjpeg_turbo
+from . import libjpeg_turbo # will need to micro upgrade this and do heavy testing if I do upgrade it; This can be one of the last upgrades
 from . import libwebp
 
 from . import libyuv
@@ -34,9 +33,7 @@ from . import python3
 
 from . import live2d
 
-#from . import libusb
-#from . import hidapi
-from . import sdl2
+from . import sdl2 # this is gonna be a nightmare to upgrade
 from . import sdl2_image
 
 from . import ffmpeg

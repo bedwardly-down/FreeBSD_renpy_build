@@ -1,7 +1,7 @@
 from renpybuild.context import Context
 from renpybuild.task import task
 
-version = "1.2.11"
+version = "1.3.1"
 
 
 @task()
@@ -20,8 +20,3 @@ def build(c: Context):
 
     c.run(""" {{ make }} """)
     c.run("{{ make_exec }} install")
-
-
-@task(platforms="web", pythons="3")
-def build_web(c: Context):
-    c.run("embuilder build zlib")

@@ -24,7 +24,9 @@ def build_host(c: Context):
     c.generate("{{ source }}/Python-{{ version }}-Setup.local", "Modules/Setup.local")
 
     # create the install folder to solve build error
-    c.run("mkdir -p {{ host }}/lib/python{{ pyver }}")
+    c.var("host_internal", "{{ host }}/lib/python{{ pyver }}")
+    if not os.path.exists("{{ host_internal }}"):
+        c.run("mkdir -p {{ host }}/lib/python{{ pyver }}")
 
     c.run("""{{ make_exec }} install""")
 
